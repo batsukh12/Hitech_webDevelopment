@@ -18,7 +18,6 @@ app.get("/", (req, res, next) => {
   }
 });
 
-app.use(errorHandler);
 
 connectDB();
 // user routes
@@ -31,7 +30,10 @@ app.use("/api/v2", subCatRoutes);
 //product routes
 app.use("/api/product", productRoutes);
 // order routes
-app.use("api/order", orderRoutes);
+app.use("/api/order", orderRoutes);
+
+
+app.use(errorHandler);
 
 
 

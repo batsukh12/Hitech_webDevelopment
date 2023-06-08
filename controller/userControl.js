@@ -57,7 +57,7 @@ exports.updateUser = async (req, res, next) => {
     const user = await User.findByIdAndUpdate(req.params.id, req.body, {
       runValidators: true,
       new: true,
-    }).select("password");
+    }).select("-password");
 
     res.status(200).json({
       success: true,
@@ -91,25 +91,30 @@ exports.login = async (req, res, next) => {
     if (user) {
       bcrypt.compare(password, user.password, (err, result) => {
         if (err) {
-          res.json({
-            error: err,
+          res.status(200).json({
+            success: false,
+            message: "User not found",
           });
         }
         if (result) {
           const token = jwt.sign({ name: username }, 'verySecretValue', { expiresIn: '1h' });
-          res.json({
-            message: 'Login successful',
-            token: token,
+          console.log(token);
+          res.status(200).json({
+            success: true, 
+            message: "login successfully",
+            token: token
           });
         } else {
-          res.json({
-            message: 'Incorrect password',
+          res.status(200).json({
+            success: false,
+            message: "username or password is wrong",
           });
         }
       });
     } else {
-      res.json({
-        message: 'User not found',
+      res.status(200).json({
+        success: false,
+        message: "User not found",
       });
     }
   } catch (err) {
