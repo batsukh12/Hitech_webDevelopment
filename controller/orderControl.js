@@ -10,7 +10,9 @@ exports.order = async (req, res, next) => {
     const decodedToken = jwt.verify(token, 'yourSecretKey');
 
     if (!decodedToken) {
-      return res.status(401).json({ message: 'Invalid token' });
+      return res.status(401).json({ 
+        success: false,
+        message: 'Invalid token' });
     }
 
     const userId = decodedToken.userId;
@@ -19,26 +21,34 @@ exports.order = async (req, res, next) => {
     const user = await User.findById(userId);
 
     if (!user) {
-      return res.status(404).json({ message: 'User not found' });
+      return res.status(404).json({
+        success: false,
+        message: 'User not found' });
     }
 
     // Check if the user has sufficient balance
     if (user.balance < order.totalPrice) {
-      return res.status(403).json({ message: 'Insufficient balance' });
+      return res.status(403).json({
+        success: false,
+        message: 'Insufficient balance' });
     }
 
     // Check if the requested products are available
     const products = await Product.find({ _id: { $in: order.products } });
 
     if (products.length !== order.products.length) {
-      return res.status(404).json({ message: 'Some products are not found' });
+      return res.status(404).json({
+        success: false,
+        message: 'Some products are not found' });
     }
 
     // Check if the requested product counts are available
     for (const product of products) {
       const requestedCount = order.products.find((item) => item.productId === product._id.toString()).count;
       if (product.count < requestedCount) {
-        return res.status(400).json({ message: `Insufficient stock for product: ${product.name}` });
+        return res.status(400).json({
+          success: false,
+          message: `Insufficient stock for product: ${product.name}` });
       }
     }
 

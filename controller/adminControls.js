@@ -27,7 +27,9 @@ exports.createCat = async (req, res, next) => {
         success: true,
         data: category,
       });
-    } catch (err) {}
+    } catch (err) {
+      next(err);
+    }
   };
   
   exports.getCats = async (req, res, next) => {
@@ -37,7 +39,9 @@ exports.createCat = async (req, res, next) => {
         success: true,
         data: category,
       });
-    } catch (err) {}
+    } catch (err) {
+      next(err);
+    }
   };
   
   exports.updateCat = async (req, res, next) => {
@@ -51,7 +55,9 @@ exports.createCat = async (req, res, next) => {
         success: true,
         data: category,
       });
-    } catch (err) {}
+    } catch (err) {
+      next(err);
+    }
   };
   
   exports.deleteCat= async (req, res, next) => {
@@ -68,5 +74,7 @@ exports.createCat = async (req, res, next) => {
       res.status(200).json({
         success: true,
       });
-    } catch (err) {}
+    } catch (err) {
+      next(err);
+    }
   };
