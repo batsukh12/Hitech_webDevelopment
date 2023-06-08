@@ -4,6 +4,10 @@ const userRoutes = require("./routes/user-routes");
 const errorHandler = require("./middleware/error");
 const categoryRoutes = require("./routes/category-routes")
 const subCatRoutes = require("./routes/subCategory-routes")
+const productRoutes = require("./routes/product-routes")
+const orderRoutes = require("./routes/order-routes")
+
+
 const app = express();
 const PORT = 3000;
 app.get("/", (req, res, next) => {
@@ -24,6 +28,12 @@ app.use("/api/v1/auth", userRoutes);
 app.use("/api/admin", categoryRoutes);
 // subcategory routes
 app.use("/api/v2", subCatRoutes);
+//product routes
+app.use("/api/product", productRoutes);
+// order routes
+app.use("api/order", orderRoutes);
+
+
 
 app.listen(PORT, (err) => {
   console.log("Express running on port " + PORT);
