@@ -26,7 +26,6 @@ exports.register = async (req, res, next) => {
     });
   }
 };
-
 exports.getUser = async (req, res, next) => {
   try {
     const user = await User.findById(req.params.id).select("-password");
@@ -58,7 +57,7 @@ exports.updateUser = async (req, res, next) => {
     const user = await User.findByIdAndUpdate(req.params.id, req.body, {
       runValidators: true,
       new: true,
-    }).select("password");
+    }).select("-password");
 
     res.status(200).json({
       success: true,
@@ -83,3 +82,43 @@ exports.deleteUser = async (req, res, next) => {
     });
   } catch (err) {}
 };
+exports.login = async (req, res, next) => {
+  try {
+    const { username, password } = req.body;
+
+    const user = await User.findOne({ $or: [{ email: username }, { phone: username }] });
+
+    if (user) {
+      bcrypt.compare(password, user.password, (err, result) => {
+        if (err) {
+          res.status(200).json({
+            success: false,
+            message: "User not found",
+          });
+        }
+        if (result) {
+          const token = jwt.sign({ name: username }, 'verySecretValue', { expiresIn: '1h' });
+          console.log(token);
+          res.status(200).json({
+            success: true, 
+            message: "login successfully",
+            token: token
+          });
+        } else {
+          res.status(200).json({
+            success: false,
+            message: "username or password is wrong",
+          });
+        }
+      });
+    } else {
+      res.status(200).json({
+        success: false,
+        message: "User not found",
+      });
+    }
+  } catch (err) {
+    next(err);
+  }
+};
+
