@@ -88,6 +88,7 @@ exports.login = async (req, res, next) => {
 
     const user = await User.findOne({ $or: [{ email: username }, { phone: username }] });
 
+
     if (user) {
       bcrypt.compare(password, user.password, (err, result) => {
         if (err) {
