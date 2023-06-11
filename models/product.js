@@ -9,7 +9,6 @@ const productSchema = new Schema({
     subCatId: {
         type: 'string',
         required: true,
-        unique: true,
     },
     price: {
         type: 'number',

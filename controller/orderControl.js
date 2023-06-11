@@ -1,83 +1,66 @@
-const jwt = require('jsonwebtoken');
-const Product = require('../models/product');
-const User = require('../models/user');
+const User = require("../models/user");
+const Product = require("../models/product");
+const Order = require("../models/order");
 
 exports.order = async (req, res, next) => {
   try {
-    const { token, order } = req.body;
+    const { totalPrice, userId, productId, quantity } = req.body;
 
-    // jwt token verifey hine
-    const decodedToken = jwt.verify(token, 'yourSecretKey');
-
-    if (!decodedToken) {
-      return res.status(401).json({ 
-        success: false,
-        message: 'Invalid token' });
-    }
-
-    const userId = decodedToken.userId;
-
-    // tuhain token taarch bui user iig olno
     const user = await User.findById(userId);
 
     if (!user) {
       return res.status(404).json({
         success: false,
-        message: 'User not found' });
+        message: "User not found",
+      });
     }
 
     // Check if the user has sufficient balance
-    if (user.balance < order.totalPrice) {
-      return res.status(403).json({
+    if (user.balance < totalPrice) {
+      return res.status(400).json({
         success: false,
-        message: 'Insufficient balance' });
+        message: "Insufficient balance",
+      });
     }
 
-    // Check if the requested products are available
-    const products = await Product.find({ _id: { $in: order.products } });
+    const product = await Product.findById(productId);
 
-    if (products.length !== order.products.length) {
+    if (!product) {
       return res.status(404).json({
         success: false,
-        message: 'Some products are not found' });
+        message: "Product not found",
+      });
     }
 
-    // Check if the requested product counts are available
-    for (const product of products) {
-      const requestedCount = order.products.find((item) => item.productId === product._id.toString()).count;
-      if (product.count < requestedCount) {
-        return res.status(400).json({
-          success: false,
-          message: `Insufficient stock for product: ${product.name}` });
-      }
+    // Check if the requested product count is available
+    if (product.count < quantity) {
+      return res.status(400).json({
+        success: false,
+        message: `Insufficient stock for product: ${product.name}`,
+      });
     }
 
-    // Deduct the user's balance and update product counts
-    const updatedProducts = [];
-    let totalPrice = 0;
-
-    for (const product of products) {
-      const requestedCount = order.products.find((item) => item.productId === product._id.toString()).count;
-      product.count -= requestedCount;
-      updatedProducts.push(product);
-      totalPrice += product.price * requestedCount;
-    }
-
+    // Deduct the user's balance and update product count
     user.balance -= totalPrice;
+    product.count -= quantity;
 
-    // Save the updated user and products
+    // Save the updated user and product
     await user.save();
-    await Product.bulkWrite(
-      updatedProducts.map((product) => ({
-        updateOne: {
-          filter: { _id: product._id },
-          update: { $set: { count: product.count } },
-        },
-      }))
-    );
+    await product.save();
+
+    // Create a new order
+    const order = new Order({
+      productId: product._id,
+      userId: user._id,
+      quantity: quantity,
+      totalPrice: totalPrice,
+    });
+
+    // Save the order
+    await order.save();
 
     // Return a success response
-    res.json({ message: 'Order placed successfully' });
+    res.json({ message: "Order placed successfully" });
   } catch (err) {
     next(err);
   }
