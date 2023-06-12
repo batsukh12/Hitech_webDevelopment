@@ -22,10 +22,12 @@ const productSchema = new Schema({
         type: 'number',
         required: true,
     },
-    photos: {
-        type: 'string',
-        required: true,
-    },
+    photos: [
+        {
+          type: Schema.Types.ObjectId,
+          ref: 'Photo',
+        },
+    ],
     createdAt: {
         type: Date,
         default: new Date(),

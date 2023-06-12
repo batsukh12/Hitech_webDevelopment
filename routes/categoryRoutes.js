@@ -1,5 +1,5 @@
 const express = require("express");
-const { createCat, getCats, getCat, updateCat, deleteCat } = require("../controller/adminControls");
+const { createCat, getCats, getCat, updateCat, deleteCat } = require("../controller/categoryControls");
 
 const router = express.Router();
 
