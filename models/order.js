@@ -4,12 +4,10 @@ const orderSchema = new Schema({
     productId: {
         type: 'string',
         required: true,
-        unique: true,
     },
     userId: {
         type: 'string',
         required: true,
-        unique: true,
     },
     quantity: {
         type: 'string',
