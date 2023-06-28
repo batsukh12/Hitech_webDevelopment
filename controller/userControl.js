@@ -1,45 +1,45 @@
 const User = require("../models/user");
 const bcrypt = require("bcrypt");
 const jwt = require("jsonwebtoken");
-const nodemailer = require('nodemailer');
+const nodemailer = require("nodemailer");
 
 exports.register = async (req, res, next) => {
   try {
     const { email, password, phone } = req.body;
     if (password.length < 8) {
-      return res.status(400).json({ 
+      return res.status(400).json({
         success: false,
-        message: 'Password дор хаяж 8 урттай байна.' 
+        message: "Password дор хаяж 8 урттай байна.",
       });
     }
     // password tom jijig tusgai temdegt asuulsig shakgana.
     if (!validatePasswordStrength(password)) {
-      return res.status(400).json({ 
+      return res.status(400).json({
         success: false,
-        message: 'Password том жижиг тусгай тэмдэгт агуулна.' 
+        message: "Password том жижиг тусгай тэмдэгт агуулна.",
       });
     }
     //email format checker
     if (!validateEmailFormat(email)) {
-      return res.status(400).json({ 
+      return res.status(400).json({
         success: false,
-        message: 'Invalid email format' 
+        message: "Invalid email format",
       });
     }
-  
+
     // Validate the phone number format
     if (!validatePhoneNumber(phone)) {
-      return res.status(400).json({ 
+      return res.status(400).json({
         success: false,
-        message: 'утасны дугаар буруу байна.' 
+        message: "утасны дугаар буруу байна.",
       });
     }
     // email phone burgtgegdej bsn esehiig shalgana.
     const existingUser = await User.findOne({ $or: [{ email }, { phone }] });
     if (existingUser) {
-      return res.status(409).json({ 
+      return res.status(400).json({
         success: false,
-        message: 'email бүртгэгдсэн байна.' 
+        message: "email бүртгэгдсэн байна.",
       });
     }
     const saltRounds = 10;
@@ -67,7 +67,7 @@ exports.getUser = async (req, res, next) => {
   try {
     const user = await User.findById(req.params.id).select("-password");
     if (!user) {
-      res.status(200).json({
+      res.status(400).json({
         success: false,
         message: "User not found",
       });
@@ -135,14 +135,17 @@ exports.login = async (req, res, next) => {
             message: "User not found",
           });
         }
+
+        const userId = user._id;
         if (result) {
-          const token = jwt.sign({ username }, "verySecretValue", {
-            expiresIn: "1h",
+          const token = jwt.sign({ userId }, "verySecretValue", {
+            expiresIn: "0.5h",
             algorithm: "HS256",
           });
           res.status(200).json({
             success: true,
             message: "login successfully",
+            data: user,
             token: token,
           });
         } else {
@@ -179,7 +182,7 @@ exports.forgotPassword = async (req, res, next) => {
     if (!user) {
       return res.status(404).json({
         success: false,
-        message: 'User not found',
+        message: "User not found",
       });
     }
 
@@ -192,18 +195,18 @@ exports.forgotPassword = async (req, res, next) => {
     const transporter = nodemailer.createTransport({
       // Configure your email provider settings here
       // Example configuration for Gmail:
-      service: 'Gmail',
+      service: "Gmail",
       auth: {
-        user: 'your-email@gmail.com',
-        pass: 'your-password',
+        user: "your-email@gmail.com",
+        pass: "your-password",
       },
     });
 
     // Configure the email options
     const mailOptions = {
-      from: 'your-email@gmail.com',
+      from: "your-email@gmail.com",
       to: email,
-      subject: 'Password Reset OTP',
+      subject: "Password Reset OTP",
       text: `Your OTP: ${otp}`,
     };
 
@@ -213,7 +216,7 @@ exports.forgotPassword = async (req, res, next) => {
     // Return success response
     res.json({
       success: true,
-      message: 'OTP sent to your email',
+      message: "OTP sent to your email",
     });
   } catch (err) {
     next(err);
@@ -230,7 +233,7 @@ exports.resetPassword = async (req, res, next) => {
     if (!user) {
       return res.status(404).json({
         success: false,
-        message: 'User not found',
+        message: "User not found",
       });
     }
 
@@ -238,7 +241,7 @@ exports.resetPassword = async (req, res, next) => {
     if (user.otpExpiration < new Date()) {
       return res.status(400).json({
         success: false,
-        message: 'OTP has expired',
+        message: "OTP has expired",
       });
     }
 
@@ -246,7 +249,7 @@ exports.resetPassword = async (req, res, next) => {
     if (otp !== user.otp) {
       return res.status(400).json({
         success: false,
-        message: 'Invalid OTP',
+        message: "Invalid OTP",
       });
     }
 
@@ -254,14 +257,14 @@ exports.resetPassword = async (req, res, next) => {
     const saltRounds = 10;
     let hashedPassword = "";
     const salt = await bcrypt.genSalt(saltRounds);
-    
+
     hashedPassword = await bcrypt.hash(req.body.password, salt);
     user.password = hashedPassword;
     await user.save();
     // Return success response
     res.json({
       success: true,
-      message: 'Password reset successful',
+      message: "Password reset successful",
     });
   } catch (err) {
     next(err);

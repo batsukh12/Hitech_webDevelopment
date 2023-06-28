@@ -10,7 +10,7 @@ const orderRoutes = require("./routes/orderRoutes")
 const forgotPassword = require("./routes/forgetPassword")
 
 const app = express();
-const PORT = 3000;
+const PORT = 8000;
 app.get("/", (req, res, next) => {
   try {
     throw new Error("Aldaa garlaa");
