@@ -4,62 +4,63 @@ const Order = require("../models/order");
 
 exports.order = async (req, res, next) => {
   try {
-    const { totalPrice, userId, productId, quantity } = req.body;
+    const { userId, orders = [] } = req.body;
 
     const user = await User.findById(userId);
 
     if (!user) {
-      return res.status(404).json({
+      return res.status(200).json({
         success: false,
         message: "User not found",
       });
     }
 
-    // Check if the user has sufficient balance
-    if (user.balance < totalPrice) {
-      return res.status(400).json({
+    let totalOrderPrice = 0;
+    const productUpdates = [];
+    const orderUpdates = [];
+
+    for (let i = 0; i < orders.length; i++) {
+      const product = await Product.findById(orders[i].productId);
+
+      if (!product) {
+        return res.status(200).json({
+          success: false,
+          message: `Product ${orders[i].productId} not found`,
+        });
+      }
+
+      if (product.count < orders[i].quantity) {
+        return res.status(200).json({
+          success: false,
+          message: `Insufficient stock for product: ${product.name}`,
+        });
+      }
+
+      const totalPrice = orders[i].quantity * product.price;
+      totalOrderPrice += totalPrice;
+      product.count -= orders[i].quantity;
+
+      productUpdates.push(product.save());
+
+      const order = new Order({
+        productId: product._id,
+        userId: user._id,
+        quantity: orders[i].quantity,
+        totalPrice: totalPrice,
+      });
+      orderUpdates.push(order.save());
+    }
+
+    if (user.balance < totalOrderPrice) {
+      return res.status(200).json({
         success: false,
         message: "Insufficient balance",
       });
     }
+    user.balance -= totalOrderPrice;
 
-    const product = await Product.findById(productId);
+    await Promise.all([user.save(), ...productUpdates, ...orderUpdates]);
 
-    if (!product) {
-      return res.status(404).json({
-        success: false,
-        message: "Product not found",
-      });
-    }
-
-    // Check if the requested product count is available
-    if (product.count < quantity) {
-      return res.status(400).json({
-        success: false,
-        message: `Insufficient stock for product: ${product.name}`,
-      });
-    }
-
-    // Deduct the user's balance and update product count
-    user.balance -= totalPrice;
-    product.count -= quantity;
-
-    // Save the updated user and product
-    await user.save();
-    await product.save();
-
-    // Create a new order
-    const order = new Order({
-      productId: product._id,
-      userId: user._id,
-      quantity: quantity,
-      totalPrice: totalPrice,
-    });
-
-    // Save the order
-    await order.save();
-
-    // Return a success response
     res.json({ message: "Order placed successfully" });
   } catch (err) {
     next(err);
@@ -74,14 +75,14 @@ exports.getOrders = async (req, res, next) => {
     });
   } catch (err) {}
 };
-exports.getUserOrder = async(req, res, next)  => {
-  try{
+exports.getUserOrder = async (req, res, next) => {
+  try {
     const userId = req.params.id;
 
     const user = await User.findById(userId);
 
     if (!user) {
-      return res.status(404).json({
+      return res.status(200).json({
         success: false,
         message: "User not found",
       });
@@ -97,14 +98,14 @@ exports.getUserOrder = async(req, res, next)  => {
     next(err);
   }
 };
-exports.getProductOrder = async(req, res, next)  => {
-  try{
+exports.getProductOrder = async (req, res, next) => {
+  try {
     const productId = req.params.id;
 
     const product = await Product.findById(productId);
 
     if (!product) {
-      return res.status(404).json({
+      return res.status(200).json({
         success: false,
         message: "product not found",
       });

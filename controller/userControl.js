@@ -100,7 +100,9 @@ exports.updateUser = async (req, res, next) => {
       success: true,
       data: user,
     });
-  } catch (err) {}
+  } catch (err) {
+    console.log(err);
+  }
 };
 
 exports.deleteUser = async (req, res, next) => {

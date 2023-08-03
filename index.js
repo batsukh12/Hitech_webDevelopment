@@ -3,11 +3,11 @@ const connectDB = require("./config/db");
 const errorHandler = require("./middleware/error");
 const userRoutes = require("./routes/userRoutes");
 
-const categoryRoutes = require("./routes/categoryRoutes")
-const subCatRoutes = require("./routes/subCategoryRoutes")
-const productRoutes = require("./routes/productRoutes")
-const orderRoutes = require("./routes/orderRoutes")
-const forgotPassword = require("./routes/forgetPassword")
+const categoryRoutes = require("./routes/categoryRoutes");
+const subCatRoutes = require("./routes/subCategoryRoutes");
+const productRoutes = require("./routes/productRoutes");
+const orderRoutes = require("./routes/orderRoutes");
+const forgotPassword = require("./routes/forgetPassword");
 
 const app = express();
 const PORT = 8000;
@@ -18,7 +18,6 @@ app.get("/", (req, res, next) => {
     next(err);
   }
 });
-
 
 connectDB();
 // user routes
@@ -33,7 +32,7 @@ app.use("/api/product", productRoutes);
 // order routes
 app.use("/api/order", orderRoutes);
 //
-app.use("/api/pass", forgotPassword)
+app.use("/api/pass", forgotPassword);
 
 app.use(errorHandler);
 app.listen(PORT, (err) => {
