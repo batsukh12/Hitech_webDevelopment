@@ -1,10 +1,10 @@
-const mongoose = require('mongoose');
+const mongoose = require("mongoose");
 const Schema = mongoose.Schema;
 
 const photoSchema = new Schema({
   product: {
     type: Schema.Types.ObjectId,
-    ref: 'Product',
+    ref: "Product",
   },
   url: {
     type: String,
@@ -15,6 +15,6 @@ const photoSchema = new Schema({
   },
 });
 
-const Photo = mongoose.model('Photo', photoSchema);
+const Photo = mongoose.model("Photo", photoSchema);
 
 module.exports = Photo;
