@@ -22,6 +22,9 @@ const productSchema = new Schema({
         type: 'number',
         required: true,
     },
+    sale: {
+        type: 'number',
+    },
     photos: [
         {
           type: Schema.Types.ObjectId,
