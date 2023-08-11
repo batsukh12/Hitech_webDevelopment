@@ -76,7 +76,6 @@ exports.deleteProduct = async (req, res, next) => {
   }
 };
 
-
 exports.filterProducts = async (req, res) => {
   try {
     let products = [];
@@ -112,7 +111,6 @@ exports.popularProducts = async (req, res) => {
 
     if (!orders) {
       throw new Error("Orders not found");
-
     }
 
     // console.log("products",products);
@@ -137,7 +135,7 @@ exports.saleProducts = async (req, res) => {
     saleProducts = await Product.find({
       count: {
         $gte: 10,
-      }
+      },
     });
 
     res.status(200).json({
@@ -156,7 +154,7 @@ exports.specialProducts = async (req, res) => {
     specialProducts = await Product.find({
       count: {
         $gte: 1,
-        $lte: 3
+        $lte: 3,
       },
       createdAt: {
         $gte: startDate,

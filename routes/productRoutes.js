@@ -8,7 +8,7 @@ const {
   filterProducts,
   popularProducts,
   saleProducts,
-  specialProducts
+  specialProducts,
 } = require("../controller/productControl");
 
 const router = express.Router();
