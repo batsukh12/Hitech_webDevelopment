@@ -8,7 +8,6 @@ const productSchema = new Schema({
   },
   subCatId: {
     type: "string",
-    required: true,
   },
   price: {
     type: "number",
@@ -16,11 +15,14 @@ const productSchema = new Schema({
   },
   description: {
     type: "string",
-    required: true,
   },
   count: {
     type: "number",
     required: true,
+  },
+  brend: {
+    type: "string",
+    unique: true,
   },
   photos: [
     {
