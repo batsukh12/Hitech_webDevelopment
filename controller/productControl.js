@@ -60,7 +60,7 @@ exports.updateProduct = async (req, res, next) => {
 exports.deleteProduct = async (req, res, next) => {
   try {
     const product = await Product.findById(req.params.id);
-    if (!user) {
+    if (!product) {
       res.status(200).json({
         success: false,
         message: "product not found",

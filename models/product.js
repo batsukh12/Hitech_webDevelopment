@@ -22,7 +22,6 @@ const productSchema = new Schema({
   },
   brend: {
     type: "string",
-    unique: true,
   },
   photos: [
     {
