@@ -35,7 +35,7 @@ exports.register = async (req, res, next) => {
       });
     }
     // email phone burgtgegdej bsn esehiig shalgana.
-    const existingUser = await User.findOne({ $or: [{ email }, { phone }] });
+    const existingUser = await User.findOne({ email });
     if (existingUser) {
       return res.status(400).json({
         success: false,
