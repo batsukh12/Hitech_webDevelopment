@@ -2,6 +2,9 @@ const User = require("../models/user");
 const Product = require("../models/product");
 const Order = require("../models/order");
 
+function orderNumbers() {
+  return Math.floor(1000 + Math.random() * 9000);
+}
 exports.order = async (req, res, next) => {
   try {
     const { userId, orders = [] } = req.body;
@@ -18,6 +21,7 @@ exports.order = async (req, res, next) => {
     let totalOrderPrice = 0;
     const productUpdates = [];
     const orderUpdates = [];
+    const orderNumber = orderNumbers();
 
     for (let i = 0; i < orders.length; i++) {
       const product = await Product.findById(orders[i].productId);
@@ -43,6 +47,7 @@ exports.order = async (req, res, next) => {
       productUpdates.push(product.save());
 
       const order = new Order({
+        orderNumber: orderNumber,
         productId: product._id,
         userId: user._id,
         quantity: orders[i].quantity,
