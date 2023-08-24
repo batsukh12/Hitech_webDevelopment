@@ -65,8 +65,11 @@ exports.order = async (req, res, next) => {
     user.balance -= totalOrderPrice;
 
     await Promise.all([user.save(), ...productUpdates, ...orderUpdates]);
-
-    res.json({ message: "Order placed successfully" });
+    res.status(200).json({
+      success: true,
+      message: "Order placed successfully",
+      data: orderNumber,
+    });
   } catch (err) {
     next(err);
   }
